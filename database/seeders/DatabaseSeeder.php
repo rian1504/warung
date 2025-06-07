@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => env('NAME'),
             'email' => env('EMAIL'),
-            'password' => bcrypt(env('PASSWORD')),
+            'password' => env('PASSWORD'),
         ]);
     }
 }

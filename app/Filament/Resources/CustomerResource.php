@@ -7,13 +7,12 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\CustomerResource\Pages\ViewCustomer;
 use App\Filament\Resources\CustomerResource\Pages\ListCustomers;
+use App\Filament\Resources\CustomerResource\RelationManagers\DebtsRelationManager;
+use App\Filament\Resources\CustomerResource\RelationManagers\PaymentHistoriesRelationManager;
 
 class CustomerResource extends Resource
 {
@@ -43,11 +42,6 @@ class CustomerResource extends Resource
                     ->maxLength(255),
                 TextInput::make('address')
                     ->label('Alamat')
-                    ->required()
-                    ->validationMessages([
-                        'required' => 'Alamat wajib diisi',
-                    ])
-                    ->minLength(4)
                     ->maxLength(255),
             ]);
     }
@@ -60,15 +54,14 @@ class CustomerResource extends Resource
                     ->rowIndex(),
                 TextColumn::make('name')
                     ->label('Nama')
+                    ->description(fn(Customer $record): string => $record->address ?? '-')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('address')
-                    ->label('Alamat'),
                 TextColumn::make('debt_total')
-                    ->label('Total Utang')
+                    ->label('Total Hutang')
                     ->color('danger')
                     ->prefix('Rp ')
-                    ->money('idr')
+                    ->money('IDR')
                     ->numeric()
                     ->sortable(),
             ])
@@ -83,7 +76,8 @@ class CustomerResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            DebtsRelationManager::class,
+            PaymentHistoriesRelationManager::class,
         ];
     }
 
@@ -98,5 +92,10 @@ class CustomerResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         return static::getEloquentQuery()->count();
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'info';
     }
 }
