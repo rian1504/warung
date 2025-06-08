@@ -13,6 +13,7 @@ use App\Filament\Resources\CustomerResource\Pages\ViewCustomer;
 use App\Filament\Resources\CustomerResource\Pages\ListCustomers;
 use App\Filament\Resources\CustomerResource\RelationManagers\DebtsRelationManager;
 use App\Filament\Resources\CustomerResource\RelationManagers\PaymentHistoriesRelationManager;
+use App\Filament\Resources\CustomerResource\Widgets\DebtStatsOverview;
 
 class CustomerResource extends Resource
 {
@@ -59,7 +60,7 @@ class CustomerResource extends Resource
                     ->sortable(),
                 TextColumn::make('debt_total')
                     ->label('Total Hutang')
-                    ->color('danger')
+                    ->color(fn(Customer $record): string => $record->debt_total > 0 ? 'danger' : 'success')
                     ->prefix('Rp ')
                     ->money('IDR')
                     ->numeric()
@@ -97,5 +98,12 @@ class CustomerResource extends Resource
     public static function getNavigationBadgeColor(): ?string
     {
         return 'info';
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            DebtStatsOverview::class,
+        ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\CustomerResource\RelationManagers;
 
 use App\Models\Debt;
+use App\Models\Customer;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\Filter;
@@ -12,10 +13,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteAction;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Resources\RelationManagers\RelationManager;
 
 class DebtsRelationManager extends RelationManager
@@ -102,16 +100,35 @@ class DebtsRelationManager extends RelationManager
                     ->icon('heroicon-o-plus')
                     ->modalHeading('Tambah Hutang Baru')
                     ->modalSubmitActionLabel('Simpan Hutang')
-                    ->successNotificationTitle('Hutang berhasil ditambahkan'),
+                    ->successNotificationTitle('Hutang berhasil ditambahkan')
+                    ->mutateFormDataUsing(function (array $data): array {
+                        $customer = $this->getOwnerRecord();
+                        $debt = $customer->debt_total;
+
+                        $debtTotal = $debt + (int) $data['amount'];
+
+                        // Update the customer's debt total
+                        Customer::where('id', $customer->id)
+                            ->update(['debt_total' => $debtTotal]);
+
+                        return $data;
+                    }),
             ])
             ->actions([
-                EditAction::make(),
-                DeleteAction::make(),
-            ])
-            ->bulkActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                EditAction::make()
+                    ->mutateFormDataUsing(function (array $data, Debt $record): array {
+                        $customer = $this->getOwnerRecord();
+                        $debt = $customer->debt_total;
+
+                        $debtOriginal = $debt - (int) $record->amount;
+                        $debtTotal = $debtOriginal + (int) $data['amount'];
+
+                        // Update the customer's debt total
+                        Customer::where('id', $customer->id)
+                            ->update(['debt_total' => $debtTotal]);
+
+                        return $data;
+                    }),
             ])
             ->defaultSort('created_at', 'desc');
     }

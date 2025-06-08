@@ -2,18 +2,21 @@
 
 namespace App\Filament\Resources\CustomerResource\Pages;
 
-use App\Filament\Resources\CustomerResource;
-use Filament\Actions;
+use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
+use App\Filament\Resources\CustomerResource;
+use App\Filament\Resources\CustomerResource\Widgets\DebtStatsOverview;
 
 class ViewCustomer extends ViewRecord
 {
     protected static string $resource = CustomerResource::class;
 
-    protected function getHeaderActions(): array
+    protected function getHeaderWidgets(): array
     {
         return [
-            Actions\EditAction::make(),
+            DebtStatsOverview::make([
+                'record' => $this->getRecord(),
+            ]),
         ];
     }
 }
