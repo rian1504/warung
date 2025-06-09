@@ -7,13 +7,14 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use App\Filament\Resources\CustomerResource\Pages\ViewCustomer;
 use App\Filament\Resources\CustomerResource\Pages\ListCustomers;
+use App\Filament\Resources\CustomerResource\Widgets\DebtStatsOverview;
 use App\Filament\Resources\CustomerResource\RelationManagers\DebtsRelationManager;
 use App\Filament\Resources\CustomerResource\RelationManagers\PaymentHistoriesRelationManager;
-use App\Filament\Resources\CustomerResource\Widgets\DebtStatsOverview;
 
 class CustomerResource extends Resource
 {
@@ -39,10 +40,11 @@ class CustomerResource extends Resource
                     ->validationMessages([
                         'required' => 'Nama wajib diisi',
                     ])
-                    ->minLength(4)
+                    ->minLength(2)
                     ->maxLength(255),
                 TextInput::make('address')
                     ->label('Alamat')
+                    ->required()
                     ->maxLength(255),
             ]);
     }
@@ -66,11 +68,13 @@ class CustomerResource extends Resource
                     ->numeric()
                     ->sortable(),
             ])
+            ->defaultSort('debt_total', 'desc')
             ->filters([
                 //
             ])
             ->actions([
                 EditAction::make(),
+                DeleteAction::make(),
             ]);
     }
 
