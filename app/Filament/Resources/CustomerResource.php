@@ -30,6 +30,8 @@ class CustomerResource extends Resource
 
     protected static ?string $navigationBadgeTooltip = 'Total Data Pelanggan';
 
+    protected static ?int $navigationSort = 2;
+
     public static function form(Form $form): Form
     {
         return $form
